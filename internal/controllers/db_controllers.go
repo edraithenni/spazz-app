@@ -2,11 +2,12 @@ package controllers
 
 import (
 	"database/sql"
-	"github.com/gin-gonic/gin"
 	"net/http"
-	"werf_guide_app/internal/services"
 
-	_ "github.com/go-sql-driver/mysql"
+	"github.com/gin-gonic/gin"
+	"spazz-app/internal/services"
+
+	_ "github.com/lib/pq"
 )
 
 func RememberController(c *gin.Context) {
@@ -16,18 +17,17 @@ func RememberController(c *gin.Context) {
 	if err != nil {
 		panic(err)
 	}
+	defer db.Close()
 
 	answer := c.Query("answer")
 	name := c.Query("name")
-	_, err = db.Exec("INSERT INTO talkers (answer, name) VALUES (?, ?)",
-		answer, name)
+
+	_, err = db.Exec("INSERT INTO talkers (answer, name) VALUES ($1, $2)", answer, name)
 	if err != nil {
 		panic(err)
 	}
 
 	c.String(http.StatusOK, "Got it.\n")
-
-	defer db.Close()
 }
 
 func SayController(c *gin.Context) {
@@ -37,20 +37,22 @@ func SayController(c *gin.Context) {
 	if err != nil {
 		panic(err)
 	}
+	defer db.Close()
 
-	result, err := db.Query("SELECT * FROM talkers")
+	rows, err := db.Query("SELECT * FROM talkers")
 	if err != nil {
 		panic(err)
 	}
+	defer rows.Close()
 
 	count := 0
-	for result.Next() {
+	for rows.Next() {
 		count++
 		var id int
 		var answer string
 		var name string
 
-		err = result.Scan(&id, &answer, &name)
+		err = rows.Scan(&id, &answer, &name)
 		if err != nil {
 			panic(err)
 		}
