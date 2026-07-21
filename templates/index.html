@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>spazz-app</title>
+    <link rel="stylesheet" href="/static/stylesheets/style.css">
+</head>
+<body>
+    <h1>Welcome to spazz-app</h1>
+    <p>This is a Gin application working with PostgreSQL.</p>
+
+    <h3>Test Database Write:</h3>
+    <form action="/remember" method="GET">
+        <input type="text" name="name" placeholder="Your Name" required>
+        <input type="text" name="answer" placeholder="Your Message" required>
+        <button type="submit">Send to DB</button>
+    </form>
+
+    <br>
+    <a href="/say">See last message from DB</a>
+</body>
+</html>

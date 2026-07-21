@@ -1,10 +1,10 @@
-module werf_guide_app
+module spazz-app
 
-go 1.18
+go 1.21
 
 require (
 	github.com/gin-gonic/gin v1.9.1
-	github.com/go-sql-driver/mysql v1.7.1
+	github.com/lib/pq v1.12.3
 )
 
 require (

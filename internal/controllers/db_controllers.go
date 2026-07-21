@@ -31,6 +31,9 @@ func RememberController(c *gin.Context) {
 }
 
 func SayController(c *gin.Context) {
+	
+	c.Header("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0")
+
 	dbType, dbPath := services.GetDBCredentials()
 
 	db, err := sql.Open(dbType, dbPath)
@@ -39,28 +42,19 @@ func SayController(c *gin.Context) {
 	}
 	defer db.Close()
 
-	rows, err := db.Query("SELECT * FROM talkers")
-	if err != nil {
+	var id int
+	var answer string
+	var name string
+
+	err = db.QueryRow("SELECT id, answer, name FROM talkers ORDER BY RANDOM() LIMIT 1").Scan(&id, &answer, &name)
+	
+	if err == sql.ErrNoRows {
+		c.String(http.StatusOK, "I have nothing to say.\n")
+		return
+	} else if err != nil {
 		panic(err)
 	}
-	defer rows.Close()
 
-	count := 0
-	for rows.Next() {
-		count++
-		var id int
-		var answer string
-		var name string
-
-		err = rows.Scan(&id, &answer, &name)
-		if err != nil {
-			panic(err)
-		}
-
-		c.String(http.StatusOK, answer+", "+name+"!\n")
-		break
-	}
-	if count == 0 {
-		c.String(http.StatusOK, "I have nothing to say.\n")
-	}
+	c.String(http.StatusOK, answer+", "+name+"!\n")
 }
+
