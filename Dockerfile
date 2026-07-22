@@ -11,16 +11,13 @@ RUN go build -o /goapp ./cmd/main.go
 FROM alpine:latest AS migrate-builder
 
 ADD https://github.com/golang-migrate/migrate/releases/download/v4.17.0/migrate.linux-amd64.tar.gz /tmp/migrate.tar.gz
-RUN tar -xzf /tmp/migrate.tar.gz -C /tmp && mv /tmp/migrate /migrations/migrate && chmod +x /migrations/migrate
+RUN mkdir -p /migrations && tar -xzf /tmp/migrate.tar.gz -C /migrations && mv /migrations/migrate.linux-amd64 /migrations/migrate && chmod +x /migrations/migrate
 
 FROM alpine:latest
 
 COPY --from=builder /goapp /goapp
-
 COPY --from=migrate-builder /migrations/migrate /migrations/migrate
-
 COPY db/migrations /migrations/schemes
-
 COPY static /static
 COPY templates /templates
 
