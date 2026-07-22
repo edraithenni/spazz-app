@@ -3,6 +3,7 @@ package controllers
 import (
 	"database/sql"
 	"net/http"
+	"os"
 
 	"github.com/gin-gonic/gin"
 	"spazz-app/internal/services"
@@ -11,6 +12,7 @@ import (
 )
 
 func RememberController(c *gin.Context) {
+	podName := os.Getenv("HOSTNAME")
 	dbType, dbPath := services.GetDBCredentials()
 
 	db, err := sql.Open(dbType, dbPath)
@@ -27,13 +29,14 @@ func RememberController(c *gin.Context) {
 		panic(err)
 	}
 
-	c.String(http.StatusOK, "Got it.\n")
+	c.String(http.StatusOK, "Got it.\n%s",podName)
 }
 
 func SayController(c *gin.Context) {
 	
 	c.Header("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0")
-
+	
+	podName := os.Getenv("HOSTNAME")
 	dbType, dbPath := services.GetDBCredentials()
 
 	db, err := sql.Open(dbType, dbPath)
@@ -55,6 +58,6 @@ func SayController(c *gin.Context) {
 		panic(err)
 	}
 
-	c.String(http.StatusOK, answer+", "+name+"!\n")
+	c.String(http.StatusOK, answer+", "+name+"!\n%s", podName)
 }
 
